@@ -1,0 +1,17 @@
+---
+version: 0.2
+phases:
+  install:
+    commands:
+      - pip3 install sphinx sphinx_rtd_theme
+  build:
+    commands:
+      # Compile docs to html
+      - cd $CODEBUILD_SRC_DIR/docs
+      - make html
+      # Zip up compiled html docs
+      - cd $CODEBUILD_SRC_DIR/docs/workbook/_build/html
+      - tar -czf $CODEBUILD_SRC_DIR/workbook.tar.gz .
+      # Upload html docs to s3, to be downloaded onto webserver via crontask.
+      - cd $CODEBUILD_SRC_DIR
+      - aws s3 cp workbook.tar.gz s3://${BUCKET_NAME}/files/shared/ccoe/$BRANCH/workbook.tar.gz --sse AES256
